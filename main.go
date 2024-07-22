@@ -49,6 +49,14 @@ func handleMessage(logger *log.Logger, method string, contents []byte) {
 		writer.Write([]byte(reply))
 
 		logger.Println("initialize response sent!")
+	case "textDocument/didOpen":
+		var request lsp.DidOpenTextDocumentNotification
+		if err := json.Unmarshal(contents, &request); err != nil {
+			logger.Println("failed to parse initialize req:", err)
+		}
+		logger.Printf("text doc open notif: %s %s\n",
+			request.Params.TextDocument.URI,
+			request.Params.TextDocument.Text)
 	}
 }
 
