@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
+	"golsp/lsp"
 	"golsp/rpc"
 	"log"
 	"os"
@@ -15,14 +17,39 @@ func main() {
 	scanner.Split(rpc.Split)
 
 	for scanner.Scan() {
-		msg := scanner.Text()
-		handleMessage(logger, msg)
+		msg := scanner.Bytes()
+		method, contents, err := rpc.DecodeMessage(msg)
+		if err != nil {
+			logger.Printf("failed to decode msg: %s\n", err)
+			continue
+		}
+
+		handleMessage(logger, method, contents)
 	}
 	logger.Println("go lsp stopped")
 }
 
-func handleMessage(logger *log.Logger, msg any) {
-	logger.Println(msg)
+func handleMessage(logger *log.Logger, method string, contents []byte) {
+	logger.Printf("received msg with method: %s", method)
+
+	switch method {
+	case "initialize":
+		var request lsp.InitializeRequest
+		if err := json.Unmarshal(contents, &request); err != nil {
+			logger.Println("failed to parse initialize req:", err)
+		}
+		logger.Printf("connected to: %s %s",
+			request.Params.ClientInfo.Name,
+			request.Params.ClientInfo.Version)
+
+		// now we need to reply initialize reponse to the editor
+		msg := lsp.NewInitializeResponse(request.ID)
+		reply := rpc.EncodeMessage(msg)
+		writer := os.Stdout
+		writer.Write([]byte(reply))
+
+		logger.Println("initialize response sent!")
+	}
 }
 
 func getLogger(filename string) *log.Logger {
