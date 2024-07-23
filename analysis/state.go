@@ -3,6 +3,7 @@ package analysis
 import (
 	"fmt"
 	"golsp/lsp"
+	"strings"
 )
 
 // saves current state of all opened documents
@@ -58,6 +59,68 @@ func (s *State) Definition(id int, uri string, position lsp.Position) lsp.Defini
 					Character: 0,
 				},
 			},
+		},
+	}
+}
+
+func (s *State) TextDocumentCodeAction(id int, uri string) lsp.TextDocumentCodeActionResponse {
+	text := s.Documents[uri]
+	toReplace := "Ruby"
+	actions := []lsp.CodeAction{}
+
+	// process each line
+	for row, line := range strings.Split(text, "\n") {
+		idx := strings.Index(line, toReplace)
+		if idx >= 0 { // means string present
+
+			// ----- 1. replace text action -------
+			replaceChange := map[string][]lsp.TextEdit{}
+			replaceChange[uri] = []lsp.TextEdit{
+				{
+					Range:   LineRange(row, idx, idx+len(toReplace)),
+					NewText: "Golang",
+				},
+			}
+
+			actions = append(actions, lsp.CodeAction{
+				Title: "Replace R*by with a superior language",
+				Edit:  &lsp.WorkspaceEdit{Changes: replaceChange},
+			})
+
+			// ----- 2. censor text action -------
+			censorChange := map[string][]lsp.TextEdit{}
+			censorChange[uri] = []lsp.TextEdit{
+				{
+					Range:   LineRange(row, idx, idx+len(toReplace)),
+					NewText: "R*by",
+				},
+			}
+
+			actions = append(actions, lsp.CodeAction{
+				Title: "Censor to R*by",
+				Edit:  &lsp.WorkspaceEdit{Changes: censorChange},
+			})
+		}
+	}
+
+	return lsp.TextDocumentCodeActionResponse{
+		Response: lsp.Response{
+			RPC: "2.0",
+			ID:  &id,
+		},
+		Result: actions,
+	}
+}
+
+func LineRange(line, start, end int) lsp.Range {
+	return lsp.Range{
+		Start: lsp.Position{
+			Line:      line,
+			Character: start,
+		},
+		End: lsp.Position{
+			Line:      line,
+			Character: end,
 		},
 	}
 }
