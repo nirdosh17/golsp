@@ -100,6 +100,17 @@ func handleMessage(logger *log.Logger, writer io.Writer, state analysis.State, m
 
 		response := state.TextDocumentCodeAction(request.ID, request.Params.TextDocument.URI)
 		writeResponse(writer, response)
+
+	case "textDocument/completion":
+		var request lsp.CompletionRequest
+		if err := json.Unmarshal(contents, &request); err != nil {
+			logger.Println("textDocument/completion err:", err)
+			return
+		}
+
+		// in reality, we would be passing the position as well to perform other string manipulations
+		response := state.TextDocumentCompletion(request.ID, request.Params.TextDocument.URI)
+		writeResponse(writer, response)
 	}
 }
 

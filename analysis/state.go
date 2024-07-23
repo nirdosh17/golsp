@@ -112,6 +112,26 @@ func (s *State) TextDocumentCodeAction(id int, uri string) lsp.TextDocumentCodeA
 	}
 }
 
+func (s *State) TextDocumentCompletion(id int, uri string) lsp.CompletionResponse {
+	// we can do things like asking static analysis tools to figure out your completion
+
+	// when we type 'Go', the text editor will show these suggestions.
+	items := []lsp.CompletionItem{
+		{
+			Label:         "Golang",
+			Detail:        "Simple and fast programming laguage",
+			Documentation: "Go is expressive, concise, clean, and efficient.\nIt's a fast, statically typed, compiled language.",
+		},
+	}
+	return lsp.CompletionResponse{
+		Response: lsp.Response{
+			RPC: "2.0",
+			ID:  &id,
+		},
+		Result: items,
+	}
+}
+
 func LineRange(line, start, end int) lsp.Range {
 	return lsp.Range{
 		Start: lsp.Position{
