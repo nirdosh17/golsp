@@ -16,12 +16,40 @@ func NewState() State {
 	return State{Documents: map[string]string{}}
 }
 
-func (s *State) OpenDocument(uri, text string) {
-	s.Documents[uri] = text
+func getDiagnosticsForFile(text string) []lsp.Diagnostic {
+	diagnostics := []lsp.Diagnostic{}
+	for row, line := range strings.Split(text, "\n") {
+		if strings.Contains(line, "Java") {
+			idx := strings.Index(line, "Java")
+			diagnostics = append(diagnostics, lsp.Diagnostic{
+				Range:    LineRange(row, idx, idx+len("Java")),
+				Severity: 1, // error
+				Source:   "GoLSP",
+				Message:  "Dude! Mind your language!",
+			})
+		}
+
+		if strings.Contains(line, "Golang") {
+			idx := strings.Index(line, "Golang")
+			diagnostics = append(diagnostics, lsp.Diagnostic{
+				Range:    LineRange(row, idx, idx+len("Golang")),
+				Severity: 4, // hint
+				Source:   "GoLSP",
+				Message:  "Great choice!",
+			})
+		}
+	}
+	return diagnostics
 }
 
-func (s *State) UpdateDocument(uri, text string) {
+func (s *State) OpenDocument(uri, text string) []lsp.Diagnostic {
 	s.Documents[uri] = text
+	return getDiagnosticsForFile(text)
+}
+
+func (s *State) UpdateDocument(uri, text string) []lsp.Diagnostic {
+	s.Documents[uri] = text
+	return getDiagnosticsForFile(text)
 }
 
 func (s *State) Hover(id int, uri string, position lsp.Position) lsp.HoverResponse {
@@ -65,7 +93,7 @@ func (s *State) Definition(id int, uri string, position lsp.Position) lsp.Defini
 
 func (s *State) TextDocumentCodeAction(id int, uri string) lsp.TextDocumentCodeActionResponse {
 	text := s.Documents[uri]
-	toReplace := "Ruby"
+	toReplace := "Java"
 	actions := []lsp.CodeAction{}
 
 	// process each line
@@ -83,7 +111,7 @@ func (s *State) TextDocumentCodeAction(id int, uri string) lsp.TextDocumentCodeA
 			}
 
 			actions = append(actions, lsp.CodeAction{
-				Title: "Replace R*by with a superior language",
+				Title: "Replace Ja*a with a superior language",
 				Edit:  &lsp.WorkspaceEdit{Changes: replaceChange},
 			})
 
@@ -92,12 +120,12 @@ func (s *State) TextDocumentCodeAction(id int, uri string) lsp.TextDocumentCodeA
 			censorChange[uri] = []lsp.TextEdit{
 				{
 					Range:   LineRange(row, idx, idx+len(toReplace)),
-					NewText: "R*by",
+					NewText: "Ja*a",
 				},
 			}
 
 			actions = append(actions, lsp.CodeAction{
-				Title: "Censor to R*by",
+				Title: "Censor to Ja*a",
 				Edit:  &lsp.WorkspaceEdit{Changes: censorChange},
 			})
 		}
