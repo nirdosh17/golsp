@@ -27,9 +27,12 @@ type InitializeResult struct {
 }
 
 // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#serverCapabilities
-// If value is 1, full document is sent each time any change is made.
+// If TextDocumentSync = 1, full document is sent each time any change is made.
+// HoverProvider = true,  tells editor that we can provide basic hover capabilities.
+// if we press 'shift + k' in neovim, we can see the hover notification
 type ServerCapabilities struct {
-	TextDocumentSync int `json:"textDocumentSync"`
+	TextDocumentSync int  `json:"textDocumentSync"`
+	HoverProvider    bool `json:"hoverProvider"`
 }
 
 type ServerInfo struct {
@@ -47,6 +50,7 @@ func NewInitializeResponse(id int) InitializeResponse {
 			Capabilities: ServerCapabilities{
 				// asks for full document
 				TextDocumentSync: 1,
+				HoverProvider:    true,
 			},
 			ServerInfo: ServerInfo{
 				Name:    "golsp",

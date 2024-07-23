@@ -33,3 +33,15 @@ type VersionTextDocumentIdentifier struct {
 	TextDocumentIdentifier
 	Version int `json:"version"`
 }
+
+// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocumentPositionParams
+type TextDocumentPositionParams struct {
+	TextDocument TextDocumentIdentifier `json:"textDocument"`
+	Position     Position               `json:"position"`
+}
+
+// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#position
+type Position struct {
+	Line      uint `json:"line"`
+	Character uint `json:"character"`
+}
