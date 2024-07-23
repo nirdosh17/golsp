@@ -35,7 +35,7 @@ func main() {
 }
 
 func handleMessage(logger *log.Logger, writer io.Writer, state analysis.State, method string, contents []byte) {
-	logger.Printf("received msg with method: %s", method)
+	logger.Printf("received method: %s", method)
 
 	switch method {
 	case "initialize":
@@ -81,6 +81,15 @@ func handleMessage(logger *log.Logger, writer io.Writer, state analysis.State, m
 
 		// create a response which will be displayed by the editor while hovering
 		response := state.Hover(request.ID, request.Params.TextDocument.URI, request.Params.Position)
+		writeResponse(writer, response)
+	case "textDocument/definition":
+		var request lsp.DefinitionRequest
+		if err := json.Unmarshal(contents, &request); err != nil {
+			logger.Println("textDocument/definition err:", err)
+			return
+		}
+
+		response := state.Definition(request.ID, request.Params.TextDocument.URI, request.Params.Position)
 		writeResponse(writer, response)
 	}
 }

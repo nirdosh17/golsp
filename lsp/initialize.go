@@ -31,8 +31,9 @@ type InitializeResult struct {
 // HoverProvider = true,  tells editor that we can provide basic hover capabilities.
 // if we press 'shift + k' in neovim, we can see the hover notification
 type ServerCapabilities struct {
-	TextDocumentSync int  `json:"textDocumentSync"`
-	HoverProvider    bool `json:"hoverProvider"`
+	TextDocumentSync   int  `json:"textDocumentSync"`
+	HoverProvider      bool `json:"hoverProvider"`
+	DefinitionProvider bool `json:"definitionProvider"`
 }
 
 type ServerInfo struct {
@@ -49,8 +50,9 @@ func NewInitializeResponse(id int) InitializeResponse {
 		Result: InitializeResult{
 			Capabilities: ServerCapabilities{
 				// asks for full document
-				TextDocumentSync: 1,
-				HoverProvider:    true,
+				TextDocumentSync:   1,
+				HoverProvider:      true,
+				DefinitionProvider: true,
 			},
 			ServerInfo: ServerInfo{
 				Name:    "golsp",

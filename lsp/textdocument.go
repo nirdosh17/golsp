@@ -42,6 +42,19 @@ type TextDocumentPositionParams struct {
 
 // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#position
 type Position struct {
-	Line      uint `json:"line"`
+	// index of line cursor is in. index of first line in the file is 0.
+	Line uint `json:"line"`
+	// index of character in the line where the cursor is. starts from zero
 	Character uint `json:"character"`
+}
+
+// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#location
+type Location struct {
+	URI   string `json:"uri"`
+	Range Range  `json:"range"`
+}
+
+type Range struct {
+	Start Position `json:"start"`
+	End   Position `json:"end"`
 }
