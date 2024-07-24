@@ -12,8 +12,8 @@ import (
 )
 
 func main() {
-	logger := getLogger("/Users/nirdosh/Personal/golsp/golsp_log.txt")
-	logger.Println("go lsp started...")
+	logger := getLogger("/Users/nirdosh/Personal/golsp/markdownlsp.log")
+	logger.Println("markdownlsp started...")
 	// give scanner something to read from
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(rpc.Split)
@@ -31,7 +31,7 @@ func main() {
 
 		handleMessage(logger, writer, state, method, contents)
 	}
-	logger.Println("go lsp stopped")
+	logger.Println("markdownlsp stopped")
 }
 
 func handleMessage(logger *log.Logger, writer io.Writer, state analysis.State, method string, contents []byte) {
@@ -148,5 +148,5 @@ func getLogger(filename string) *log.Logger {
 		panic("faild to initialize logfile" + err.Error())
 	}
 
-	return log.New(logfile, "[golsp]", log.Ldate|log.Ltime|log.Lshortfile)
+	return log.New(logfile, "[markdownlsp]", log.Ldate|log.Ltime|log.Lshortfile)
 }
